@@ -1,8 +1,8 @@
 # videodl-youku
 
-Youku-only 精简版。保留原项目 Youku 的核心解析流程：从 Youku URL 提取 vid，访问 log.mmstat.com 获取 utid，再调用 ups.youku.com/ups/get.json，过滤 tail 流并按 height、width、size 降序选择最高质量 m3u8。
+Youku-only downloader，支持 Android Termux，并支持持久化 Cookie。
 
-## Android Termux
+## Termux
 
     pkg update
     pkg install python ffmpeg git
@@ -10,23 +10,34 @@ Youku-only 精简版。保留原项目 Youku 的核心解析流程：从 Youku U
     cd videodl
     pip install -r requirements.txt
 
-下载：
+### 方式 1：Cookie 文件（推荐）
 
-    python -m videodl.videodl -i "https://v.youku.com/v_show/id_XXXX.html"
+创建：
 
-或者：
+    mkdir -p ~/.config/videodl
+    nano ~/.config/videodl/youku_cookie.txt
 
-    python -m videodl.videodl "https://v.youku.com/v_show/id_XXXX.html"
+把浏览器获取的 Youku Cookie 字符串放进去：
 
-安装命令后也可以：
+    a=b; c=d; ...
 
-    pip install -e .
-    videodl -i "https://v.youku.com/v_show/id_XXXX.html"
+然后：
+
+    python -m videodl.videodl -i "https://v.youku.com/..."
+
+### 方式 2：命令行
+
+    python -m videodl.videodl -i "https://v.youku.com/..." -c "a=b; c=d"
+
+### 方式 3：环境变量
+
+    export YOUKU_COOKIE='a=b; c=d'
+    python -m videodl.videodl -i "https://v.youku.com/..."
+
+Cookie 会同时用于 Python 解析请求和 FFmpeg 下载请求。
 
 ## 依赖
 
-Python 3.10+、requests、系统 ffmpeg。已移除其他平台、CDM、Node.js、curl-cffi、m3u8、rich、fake-useragent 等非 Youku 依赖。
+Python 3.10+、requests、系统 ffmpeg。
 
-## 说明
-
-Youku 接口、地区限制、登录权限或 DRM 可能导致特定视频无法取得可播放 m3u8。本项目不绕过 DRM，只处理 Youku 接口返回的可播放流。
+本项目不绕过 DRM；如果 Youku 返回 DRM 或账号无权访问的流，程序不会尝试破解。
